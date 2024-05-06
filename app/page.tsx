@@ -102,6 +102,8 @@ export default function Home(): JSX.Element {
   const [solarPanelWidth, setSolarPanelWidth] = useState(0);
   const [solarPanelHeight, setSolarPanelHeight] = useState(0);
   const [result, setResult] = useState<null | InnerRectangles>(null);
+  const roofLongerSide = Math.max(roofWidth, roofHeight);
+  const roofShorterSide = Math.min(roofWidth, roofHeight);
 
   const onCalculateClick = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -134,10 +136,10 @@ export default function Home(): JSX.Element {
         left,
         top,
         width,
-        height: (width * roofHeight) / roofWidth,
+        height: (width * roofShorterSide) / roofLongerSide,
       });
     }
-  }, [result, roofWidth, roofHeight]);
+  }, [result, roofLongerSide, roofShorterSide]);
 
   // Set input focus on reset
   useEffect(() => {
@@ -168,7 +170,7 @@ export default function Home(): JSX.Element {
             left,
             top,
             width,
-            height: (width * roofHeight) / roofWidth,
+            height: (width * roofShorterSide) / roofLongerSide,
           });
         }
       };
@@ -179,7 +181,7 @@ export default function Home(): JSX.Element {
         window.removeEventListener("resize", onResize);
       };
     }
-  }, [result, roofHeight, roofWidth]);
+  }, [result, roofShorterSide, roofLongerSide]);
 
   return (
     <main className="flex min-h-screen min-w-80 flex-col max-w-5xl justify-start p-6 sm:p-12 sm:mx-auto md:p-24">
@@ -331,12 +333,17 @@ export default function Home(): JSX.Element {
                     className="absolute flex justify-center items-center text-center text-sm md:text-base"
                     style={{
                       left:
-                        (roofDimensions.width / roofWidth) * solarPanel.left,
-                      top: (roofDimensions.width / roofWidth) * solarPanel.top,
+                        (roofDimensions.width / roofLongerSide) *
+                        solarPanel.left,
+                      top:
+                        (roofDimensions.width / roofLongerSide) *
+                        solarPanel.top,
                       height:
-                        (roofDimensions.width / roofWidth) * solarPanel.height,
+                        (roofDimensions.width / roofLongerSide) *
+                        solarPanel.height,
                       width:
-                        (roofDimensions.width / roofWidth) * solarPanel.width,
+                        (roofDimensions.width / roofLongerSide) *
+                        solarPanel.width,
                       backgroundColor: solarPanel.color,
                     }}
                   >
