@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { hexRandomColor } from "./utils";
+import { hexRandomColor, roundTwoDecimals } from "./utils";
 
 interface InnerRectangles {
   horizontal: number;
@@ -10,6 +10,7 @@ interface InnerRectangles {
     left: number;
     top: number;
     width: number;
+    color: string;
   }[];
   total: number;
   vertical: number;
@@ -48,10 +49,12 @@ const calculateRectangles = (
     left: number;
     top: number;
     width: number;
+    color: string;
   }[] = [];
   for (let xIndex = 0; xIndex < xHorizontalCounter; xIndex++) {
     for (let yIndex = 0; yIndex < yHorizontalCounter; yIndex++) {
       items.push({
+        color: hexRandomColor(),
         height: innerShorter,
         left: xIndex * innerLonger,
         top: yIndex * innerShorter,
@@ -62,6 +65,7 @@ const calculateRectangles = (
   if (verticalCounter) {
     for (let xIndex = 0; xIndex < verticalCounter; xIndex++) {
       items.push({
+        color: hexRandomColor(),
         height: innerLonger,
         left: xHorizontalCounter * innerLonger + xIndex * innerShorter,
         top: 0,
@@ -152,6 +156,30 @@ export default function Home(): JSX.Element {
       }, 200);
     }
   }, [result, graphElRef]);
+
+  // Recalculate graph on resize
+  useEffect(() => {
+    if (result !== null && result.total > 0) {
+      const onResize = () => {
+        if (roofElRef.current) {
+          const { left, top, width } =
+            roofElRef.current.getBoundingClientRect();
+          setRoofDimensions({
+            left,
+            top,
+            width,
+            height: (width * roofHeight) / roofWidth,
+          });
+        }
+      };
+
+      window.addEventListener("resize", onResize);
+
+      return () => {
+        window.removeEventListener("resize", onResize);
+      };
+    }
+  }, [result, roofHeight, roofWidth]);
 
   return (
     <main className="flex min-h-screen min-w-80 flex-col max-w-5xl justify-start p-6 sm:p-12 sm:mx-auto md:p-24">
@@ -265,7 +293,7 @@ export default function Home(): JSX.Element {
           <div className="text-center mt-6">
             <p>
               Nº de Paneles Solares:{" "}
-              <span className="text-primary font-bold">{result.total}</span>.
+              <span className="text-primary font-bold">{result.total}</span>
             </p>
             <p>
               De los cuales{" "}
@@ -275,6 +303,18 @@ export default function Home(): JSX.Element {
               están en horizontal y{" "}
               <span className="text-primary font-bold">{result.vertical}</span>{" "}
               en vertical.
+            </p>
+            <p>
+              La superficie desperdiciada es del{" "}
+              <span className="text-primary font-bold">
+                {roundTwoDecimals(
+                  100 -
+                    (solarPanelWidth * solarPanelHeight * result.total * 100) /
+                      (roofWidth * roofHeight)
+                )}
+                %
+              </span>
+              .
             </p>
           </div>
           {result.total > 0 && (
@@ -288,7 +328,7 @@ export default function Home(): JSX.Element {
                 {result.items.map((solarPanel, index) => (
                   <div
                     key={index}
-                    className="absolute flex justify-center items-center text-center"
+                    className="absolute flex justify-center items-center text-center text-sm md:text-base"
                     style={{
                       left:
                         (roofDimensions.width / roofWidth) * solarPanel.left,
@@ -297,10 +337,10 @@ export default function Home(): JSX.Element {
                         (roofDimensions.width / roofWidth) * solarPanel.height,
                       width:
                         (roofDimensions.width / roofWidth) * solarPanel.width,
-                      backgroundColor: hexRandomColor(),
+                      backgroundColor: solarPanel.color,
                     }}
                   >
-                    Panel Nº{index + 1}
+                    {index + 1}
                   </div>
                 ))}
               </div>
