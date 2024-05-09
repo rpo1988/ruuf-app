@@ -21,3 +21,12 @@ body {
     text-wrap: balance;
   }
 }
+
+@layer components {
+  .btn {
+    @apply px-6 py-2 rounded-xl;
+  }
+  .btn.btn-primary {
+    @apply bg-primary text-white disabled:bg-primary-lighter hover:bg-primary-darker outline-none;
+  }
+}

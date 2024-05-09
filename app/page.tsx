@@ -282,7 +282,7 @@ export default function Home(): JSX.Element {
         <button
           id="calculateButton"
           type="submit"
-          className="px-3 py-2 rounded-xl bg-primary text-white mt-5 disabled:bg-disabled sm:mx-auto sm:w-fit min-w-36"
+          className="btn btn-primary mt-5 sm:mx-auto sm:w-fit min-w-36"
           disabled={
             !(roofWidth && roofHeight && solarPanelWidth && solarPanelHeight)
           }
